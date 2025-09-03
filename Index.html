@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panneau de Configuration du Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #4752C4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Configuration du Bot Discord</h1>
+        <form id="configForm">
+            <div class="form-group">
+                <label for="twitchChannel">Nom du Streamer Twitch:</label>
+                <input type="text" id="twitchChannel" name="twitchChannel">
+            </div>
+            <div class="form-group">
+                <label for="welcomeChannel">ID du Canal de Bienvenue:</label>
+                <input type="text" id="welcomeChannel" name="welcomeChannel">
+            </div>
+            <div class="form-group">
+                <label for="announcementChannel">ID du Canal d'Annonces:</label>
+                <input type="text" id="announcementChannel" name="announcementChannel">
+            </div>
+            <button type="submit">Envoyer la Configuration</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('configForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const twitchChannel = document.getElementById('twitchChannel').value;
+            const welcomeChannel = document.getElementById('welcomeChannel').value;
+            const announcementChannel = document.getElementById('announcementChannel').value;
+
+            fetch('http://localhost:3000/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    twitchChannel,
+                    welcomeChannel,
+                    announcementChannel
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Configuration envoyée avec succès!');
+            })
+            .catch((error) => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi de la configuration.');
+            });
+        });
+    </script>
+</body>
+</html>
