@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 const QuickDB = require('quick.db');
 const db = new QuickDB.QuickDB();
 
