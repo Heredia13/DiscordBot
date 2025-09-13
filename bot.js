@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 const QuickDB = require('quick.db');
 const db = new QuickDB.QuickDB();
 
@@ -15,10 +15,14 @@ const client = new Client({
   ]
 });
 
+// Variable pour le mode maintenance
+let maintenanceMode = false;
+
 // Statut du bot
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log(`${client.user.tag} est en ligne !`);
   client.user.setActivity('tes progrès', { type: 'WATCHING' });
+  maintenanceMode = await db.get('maintenance') || false;
 });
 
 // Bienvenue
@@ -49,10 +53,29 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 // Commandes
 client.on('messageCreate', async message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+  // Vérifier la maintenance
+  const isMaintenance = await db.get('maintenance') || false;
+  if (isMaintenance && !message.member.permissions.has("Administrator")) {
+    return message.reply("Le bot est actuellement en maintenance. Veuillez réessayer plus tard.");
+  }
+
   const [cmd, ...args] = message.content.slice(prefix.length).split(/ +/);
 
+  // Commande maintenance
+  if (cmd === 'maintenance') {
+    if (!message.member.permissions.has("Administrator")) {
+      return message.reply("Tu n'as pas la permission d'utiliser cette commande.");
+    }
+    maintenanceMode = !maintenanceMode;
+    await db.set('maintenance', maintenanceMode);
+    message.channel.send(
+      `Le mode maintenance est maintenant ${maintenanceMode ? "activé" : "désactivé"}.`
+    );
+  }
+
   // Ajouter modérateur (stocké dans la DB)
-  if (cmd === 'addmod') {
+  else if (cmd === 'addmod') {
     if (!message.member.permissions.has("Administrator")) return;
     const mention = message.mentions.users.first();
     if (!mention) return message.reply("Mentionne un utilisateur.");
